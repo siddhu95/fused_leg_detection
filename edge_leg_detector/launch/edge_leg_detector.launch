@@ -1,0 +1,42 @@
+<launch>
+    <arg name="laser1_scan" default="/lms_front/scan" /><!--laser_front/scan  -->
+    <arg name="laser2_scan" default="/tim_front_ptu/scan" /><!--laser_back/scan  -->
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <!-- <Get the front TIM Laser Scanner node running >
+    <node pkg="sick_tim" name="sick_tim551_2050001" type="sick_tim551_2050001">
+        <param name="hostname" value="192.168.1.51"/>
+        <remap from="/scan" to="/spencer/sensors/laser_front/echo0"/>
+    </node> -->
+    <rosparam param="use_sim_time">true</rosparam>
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock --loop /home/miningrox/bagfiles/peopletracking/a_2015-05-21-07-04-40.bag"/><!-- InsideMine/a_2015-02-09-01-41-34.bag"/> -->
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+    
+    <node pkg="edge_leg_detector" type="detector" name="edge_leg_detector1" output="screen">
+        <param name="laser_scan" value="$(arg laser1_scan)" type="string"/>
+        <param name="posearray_op" value="/DetectedPersons1_position" type="string"/>
+    </node>
+
+    <node pkg="edge_leg_detector" type="detector" name="edge_leg_detector2" output="screen">
+        <param name="laser_scan" value="$(arg laser2_scan)" type="string"/>
+        <param name="posearray_op" value="/DetectedPersons2_position" type="string"/>
+    </node>
+
+
+    <!-- <node pkg="edge_leg_detector" type="laserCombine" name="laser_combine_node" output="screen"> 
+        <param name="Posearray1_topic" value="/DetectedPersons1_position" type="string"/>
+        <param name="Posearray2_topic" value="/DetectedPersons2_position" type="string"/>
+        <param name="Combined_Posearray_topic" value="/final_detected_posearray" type="string"/>
+    </node> -->
+
+
+    <node pkg="edge_leg_detector" type="marker" name="marker_node" output="screen"/> 
+
+
+    <node name="tracking_visualization_rviz" pkg="rviz" type="rviz" args="-d $(find edge_leg_detector)/rviz/front_laser_leg_detector.rviz"/> 
+
+</launch> 
+<!-- b_2015-05-21-07-05-57.bag
+a_2015-05-21-07-04-40.bag
+c_2015-05-21-07-07-30.bag -->

@@ -1,0 +1,23 @@
+<launch>
+    <arg name="laser_scan" default="/laser_back/scan" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <!-- <Get the front TIM Laser Scanner node running >
+    <node pkg="sick_tim" name="sick_tim551_2050001" type="sick_tim551_2050001">
+        <param name="hostname" value="192.168.1.51"/>
+        <remap from="/scan" to="/spencer/sensors/laser_front/echo0"/>
+    </node> -->
+    <node pkg="edge_leg_detector" type="marker" name="marker_node" output="screen"/> 
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock --loop /home/miningrox/bagfiles/peopletracking/InsideMine/a_2015-02-09-01-41-34.bag"/>
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+    
+    <node pkg="edge_leg_detector" type="detector" name="edge_leg_detector" output="screen">
+        <param name="laser_scan" value="$(arg laser_scan)" type="string"/>
+    </node>
+    <node name="tracking_visualization_rviz" pkg="rviz" type="rviz" args="-d $(find edge_leg_detector)/rviz/legdetector.rviz"/> 
+
+</launch> 
+<!-- b_2015-05-21-07-05-57.bag
+a_2015-05-21-07-04-40.bag
+c_2015-05-21-07-07-30.bag -->
